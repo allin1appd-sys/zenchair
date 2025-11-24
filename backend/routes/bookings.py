@@ -6,7 +6,7 @@ from database import get_database
 from dependencies import get_current_user, get_current_barber
 from models import Booking, BookingStatus
 import uuid
-from websocket import notify_new_booking, notify_booking_cancelled, notify_booking_updated
+from ws_handler import notify_new_booking, notify_booking_cancelled, notify_booking_updated
 
 router = APIRouter(prefix="/api/bookings", tags=["Bookings"])
 
