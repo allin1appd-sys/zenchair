@@ -47,6 +47,8 @@ app.include_router(services.router)
 app.include_router(products.router)
 app.include_router(bookings.router)
 app.include_router(reviews.router)
+app.include_router(favorites.router)
+app.include_router(subscriptions.router)
 
 # Mount Socket.IO
 socket_app = socketio.ASGIApp(
