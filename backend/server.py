@@ -12,7 +12,7 @@ from database import connect_to_mongo, close_mongo_connection
 from routes import auth, barbers, services, products, bookings, reviews
 
 # Import WebSocket
-from websocket import sio
+from ws_handler import sio
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
