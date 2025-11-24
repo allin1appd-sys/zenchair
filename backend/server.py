@@ -9,7 +9,7 @@ import socketio
 from database import connect_to_mongo, close_mongo_connection
 
 # Import routes
-from routes import auth, barbers, services, products, bookings, reviews
+from routes import auth, barbers, services, products, bookings, reviews, favorites, subscriptions
 
 # Import WebSocket
 from ws_handler import sio
