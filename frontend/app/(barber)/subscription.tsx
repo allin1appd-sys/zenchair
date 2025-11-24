@@ -50,33 +50,33 @@ export default function SubscriptionScreen() {
   };
 
   const handlePayment = async () => {
-    // TODO: Integrate with Tranzila when credentials are provided
-    Alert.alert(
-      'Payment Gateway',
-      'Tranzila payment integration will be added once you provide:\n\n• Terminal Name\n• API Key\n• Test credentials\n\nFor now, simulating successful payment...',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: 'Simulate Payment',
-          onPress: () => {
-            // Simulate successful payment
-            Alert.alert(
-              'Success!',
-              'Payment successful! Now create your barbershop.',
-              [
-                {
-                  text: 'Create Shop',
-                  onPress: () => router.replace('/(barber)/create-shop')
-                }
-              ]
-            );
-          }
-        }
-      ]
-    );
+    try {
+      setLoading(true);
+      
+      const response = await axios.post('/subscriptions/create', {
+        plan: selectedPlan
+      });
+      
+      if (response.data.success) {
+        Alert.alert(
+          'Success!',
+          `Payment successful! Your ${selectedPlan} subscription is now active.\\n\\nNow create your barbershop profile.`,
+          [
+            {
+              text: 'Create Shop',
+              onPress: () => router.replace('/(barber)/create-shop')
+            }
+          ]
+        );
+      }
+    } catch (error: any) {
+      Alert.alert(
+        'Payment Failed',
+        error.response?.data?.detail || 'Failed to process payment. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const plan = plans[selectedPlan];
