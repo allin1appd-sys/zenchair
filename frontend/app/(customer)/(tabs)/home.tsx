@@ -355,7 +355,7 @@ export default function HomeScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.primary} />
         </View>
-      ) : activeTab === 'map' ? (
+      ) : activeTab === 'map' && Platform.OS !== 'web' && MapView ? (
         <MapView
           style={styles.map}
           initialRegion={{
@@ -393,6 +393,16 @@ export default function HomeScreen() {
             </Marker>
           ))}
         </MapView>
+      ) : activeTab === 'map' ? (
+        <View style={styles.webMapPlaceholder}>
+          <Ionicons name="map-outline" size={64} color={theme.textTertiary} />
+          <Text style={[styles.webMapText, { color: theme.textSecondary }]}>
+            Map view is available on mobile app
+          </Text>
+          <Text style={[styles.webMapSubtext, { color: theme.textTertiary }]}>
+            Download the mobile app to see barbershops on the map
+          </Text>
+        </View>
       ) : (
         <ScrollView style={styles.listContainer}>
           {getDisplayShops().length === 0 ? (
