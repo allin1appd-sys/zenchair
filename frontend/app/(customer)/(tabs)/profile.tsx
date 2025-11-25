@@ -146,6 +146,9 @@ const styles = StyleSheet.create({
   settingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderRadius: 12, marginBottom: 8 },
   settingLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   settingText: { fontSize: 16 },
+  languageButtons: { flexDirection: 'row', gap: 8 },
+  langButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1 },
+  langText: { fontSize: 12, fontWeight: '600' },
   infoBox: { margin: 16, padding: 16, borderRadius: 12, flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   infoText: { flex: 1, fontSize: 13, lineHeight: 18 }
 });
