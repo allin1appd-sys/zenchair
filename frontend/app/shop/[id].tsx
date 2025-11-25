@@ -43,9 +43,20 @@ export default function ShopDetailScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.surface }]}>
+      {/* Header with Back Button */}
+      <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={theme.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>
+          {shop?.name || 'Shop Details'}
+        </Text>
+        <TouchableOpacity onPress={toggleFavorite}>
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            size={24}
+            color={isFavorite ? '#F44336' : theme.text}
+          />
         </TouchableOpacity>
       </View>
       <ScrollView>
