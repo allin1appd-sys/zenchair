@@ -47,7 +47,7 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const router = useRouter();
   
-  const [activeTab, setActiveTab] = useState<'map' | 'list'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'list'>('list'); // Default to list for web compatibility
   const [quickAccess, setQuickAccess] = useState<'nearby' | 'favorites' | 'recent'>('nearby');
   const [searchQuery, setSearchQuery] = useState('');
   const [shops, setShops] = useState<BarberShop[]>([]);
