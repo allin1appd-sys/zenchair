@@ -30,7 +30,12 @@
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAKnNIR0QZ-S8tO-dOG4OLdmHqw2j7Oxm8"
+        }
+      }
     },
     "web": {
       "bundler": "metro",
