@@ -33,7 +33,10 @@ export default function BarberRegisterScreen() {
       const data = await response.json();
       if (data.success) {
         await loginBarber(data.session_token, data.user);
-        router.replace('/(barber)/subscription');
+        // Wait for layout to mount before navigating
+        setTimeout(() => {
+          router.replace('/(barber)/subscription');
+        }, 100);
       } else {
         Alert.alert('Error', data.detail || 'Registration failed');
       }
