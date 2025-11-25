@@ -67,7 +67,9 @@ export default function BarberDashboardScreen() {
         // Filter today's bookings
         const today = format(new Date(), 'yyyy-MM-dd');
         const todayList = bookings.filter((b: any) => b.date === today);
-        const upcomingList = bookings.filter((b: any) => \n          b.date >= today && b.status !== 'cancelled' && b.status !== 'completed'\n        );
+        const upcomingList = bookings.filter((b: any) => 
+          b.date >= today && b.status !== 'cancelled' && b.status !== 'completed'
+        );
         
         setTodayBookings(todayList);
         setUpcomingBookings(upcomingList.slice(0, 5));
