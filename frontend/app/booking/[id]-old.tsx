@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { format, addDays } from 'date-fns';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BookingScreen() {
   const { id } = useLocalSearchParams();
@@ -18,13 +17,9 @@ export default function BookingScreen() {
   const [selectedTime, setSelectedTime] = useState('');
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
 
   useEffect(() => {
     fetchShop();
-    loadCustomerInfo();
   }, [id]);
 
   useEffect(() => {
@@ -32,17 +27,6 @@ export default function BookingScreen() {
       fetchSlots(selectedDate);
     }
   }, [selectedDate]);
-
-  const loadCustomerInfo = async () => {
-    try {
-      const name = await AsyncStorage.getItem('customer_name');
-      const phone = await AsyncStorage.getItem('customer_phone');
-      if (name) setCustomerName(name);
-      if (phone) setCustomerPhone(phone);
-    } catch (error) {
-      console.error('Error loading customer info:', error);
-    }
-  };
 
   const fetchShop = async () => {
     try {
@@ -73,17 +57,9 @@ export default function BookingScreen() {
     return dates;
   };
 
-  const handleProceedToConfirm = () => {
+  const handleBooking = async () => {
     if (!selectedDate || !selectedTime || selectedServices.length === 0) {
       Alert.alert('Error', 'Please select service, date and time');
-      return;
-    }
-    setShowCustomerForm(true);
-  };
-
-  const handleConfirmBooking = async () => {
-    if (!customerName.trim() || !customerPhone.trim()) {
-      Alert.alert('Error', 'Please enter your name and phone number');
       return;
     }
     try {
@@ -92,14 +68,11 @@ export default function BookingScreen() {
         service_ids: selectedServices,
         product_ids: [],
         date: selectedDate,
-        time: selectedTime,
-        customer_name: customerName,
-        customer_phone: customerPhone
+        time: selectedTime
       });
       if (response.data.success) {
-        setShowCustomerForm(false);
-        Alert.alert('Booking Confirmed!', `Your appointment is confirmed for ${selectedDate} at ${selectedTime}`, [
-          { text: 'OK', onPress: () => router.push('/(customer)/(tabs)/home') }
+        Alert.alert('Success', 'Booking confirmed!', [
+          { text: 'OK', onPress: () => router.push('/(customer)/(tabs)/bookings') }
         ]);
       }
     } catch (error) {
@@ -117,12 +90,11 @@ export default function BookingScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { borderBottomColor: theme.border }]}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Book Appointment</Text>
-        <View style={{ width: 24 }} />
       </View>
       <ScrollView style={styles.content}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Select Service</Text>
@@ -154,39 +126,17 @@ export default function BookingScreen() {
         )}
       </ScrollView>
       <View style={[styles.footer, { backgroundColor: theme.surface }]}>
-        <TouchableOpacity style={[styles.confirmButton, { backgroundColor: theme.primary }]} onPress={handleProceedToConfirm}>
-          <Text style={styles.confirmButtonText}>Continue</Text>
+        <TouchableOpacity style={[styles.confirmButton, { backgroundColor: theme.primary }]} onPress={handleBooking}>
+          <Text style={styles.confirmButtonText}>Confirm Booking</Text>
         </TouchableOpacity>
       </View>
-
-      <Modal visible={showCustomerForm} animationType="slide" transparent onRequestClose={() => setShowCustomerForm(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Your Information</Text>
-              <TouchableOpacity onPress={() => setShowCustomerForm(false)}>
-                <Ionicons name="close" size={24} color={theme.text} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.modalBody}>
-              <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>Name *</Text>
-              <TextInput style={[styles.fieldInput, { color: theme.text, borderColor: theme.border }]} placeholder="Your name" placeholderTextColor={theme.textTertiary} value={customerName} onChangeText={setCustomerName} />
-              <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>Phone Number *</Text>
-              <TextInput style={[styles.fieldInput, { color: theme.text, borderColor: theme.border }]} placeholder="+972-50-123-4567" placeholderTextColor={theme.textTertiary} value={customerPhone} onChangeText={setCustomerPhone} keyboardType="phone-pad" />
-              <TouchableOpacity style={[styles.confirmModalButton, { backgroundColor: theme.primary }]} onPress={handleConfirmBooking}>
-                <Text style={styles.confirmModalButtonText}>Confirm Booking</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 16 },
   headerTitle: { fontSize: 18, fontWeight: '600' },
   content: { flex: 1, padding: 16 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 12 },
@@ -200,14 +150,5 @@ const styles = StyleSheet.create({
   timeText: { fontSize: 14, fontWeight: '600' },
   footer: { padding: 16 },
   confirmButton: { height: 56, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  confirmButtonText: { color: '#FFF', fontSize: 18, fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: '#E0E0E0' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold' },
-  modalBody: { padding: 20 },
-  fieldLabel: { fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 16 },
-  fieldInput: { height: 56, borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, fontSize: 16 },
-  confirmModalButton: { height: 56, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
-  confirmModalButtonText: { color: '#FFF', fontSize: 18, fontWeight: '600' }
+  confirmButtonText: { color: '#FFF', fontSize: 18, fontWeight: '600' }
 });
