@@ -212,6 +212,7 @@ async def register_user(request: RegisterRequest, response: Response):
     
     return {
         "success": True,
+        "session_token": session_token,
         "user": {
             "id": user_id,
             "username": request.username,
