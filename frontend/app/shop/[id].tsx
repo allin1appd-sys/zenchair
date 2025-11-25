@@ -93,7 +93,8 @@ export default function ShopDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', padding: 16 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1 },
+  headerTitle: { fontSize: 18, fontWeight: '600' },
   shopInfo: { padding: 16 },
   shopTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
   shopDescription: { fontSize: 15 },
