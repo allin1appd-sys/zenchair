@@ -1,69 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Platform, ActivityIndicator, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../src/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
-// Try to import maps, but handle if not available (Expo Go limitation)
-let MapView: any = null;
-let Marker: any = null;
-let Callout: any = null;
-let PROVIDER_GOOGLE: any = null;
-let Location: any = null;
-let mapsAvailable = false;
-
-try {
-  if (Platform.OS !== 'web') {
-    const Maps = require('react-native-maps');
-    MapView = Maps.default;
-    Marker = Maps.Marker;
-    Callout = Maps.Callout;
-    PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
-    Location = require('expo-location');
-    mapsAvailable = true;
-  }
-} catch (error) {
-  console.log('Maps not available in Expo Go - showing list view');
-  mapsAvailable = false;
-}
-
 export default function MapScreen() {
   const { theme } = useTheme();
   const router = useRouter();
   const [shops, setShops] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState({
-    latitude: 31.7683,
-    longitude: 35.2137
-  });
+  const [searchCity, setSearchCity] = useState('');
 
   useEffect(() => {
-    requestLocationAndFetchShops();
+    fetchShops();
   }, []);
 
-  const requestLocationAndFetchShops = async () => {
-    if (Platform.OS !== 'web' && Location && mapsAvailable) {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === 'granted') {
-          const location = await Location.getCurrentPositionAsync({});
-          setUserLocation({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude
-          });
-        }
-      } catch (error) {
-        console.log('Location permission not granted');
-      }
-    }
-    await fetchShops();
-  };
-
-  const fetchShops = async () => {
+  const fetchShops = async (city?: string) => {
     try {
-      const response = await axios.get('/barbers/shops');
+      setLoading(true);
+      const params = city ? { city } : {};
+      const response = await axios.get('/barbers/shops', { params });
       setShops(response.data);
     } catch (error) {
       console.error('Error fetching shops:', error);
@@ -72,158 +30,91 @@ export default function MapScreen() {
     }
   };
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c).toFixed(1);
+  const handleSearch = () => {
+    if (searchCity.trim()) {
+      fetchShops(searchCity.trim());
+    } else {
+      fetchShops();
+    }
   };
 
-  // If maps not available (Expo Go), show list view
-  if (!mapsAvailable || Platform.OS === 'web') {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={[styles.header, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>
-            {Platform.OS === 'web' ? 'Map View' : 'Nearby Shops'}
-          </Text>
-          <TouchableOpacity onPress={fetchShops}>
-            <Ionicons name="refresh" size={24} color={theme.primary} />
-          </TouchableOpacity>
-        </View>
-
-        {Platform.OS === 'web' ? (
-          <View style={styles.webPlaceholder}>
-            <Ionicons name="map-outline" size={64} color={theme.textTertiary} />
-            <Text style={[styles.webTitle, { color: theme.text }]}>Interactive Map</Text>
-            <Text style={[styles.webSubtitle, { color: theme.textSecondary }]}>
-              Download the mobile app to see barbershops on Google Maps
-            </Text>
-          </View>
-        ) : (
-          <>
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.primary} />
-              </View>
-            ) : (
-              <ScrollView style={styles.listContainer}>
-                <View style={[styles.infoCard, { backgroundColor: theme.accentLight }]}>
-                  <Ionicons name="information-circle" size={20} color={theme.primary} />
-                  <Text style={[styles.infoText, { color: theme.textSecondary }]}>
-                    🗺️ Full Google Maps available in custom app build. Showing list view for now!
-                  </Text>
-                </View>
-                {shops.map((shop) => (
-                  <TouchableOpacity
-                    key={shop._id}
-                    style={[styles.shopCard, { backgroundColor: theme.card }]}
-                    onPress={() => router.push(`/shop/${shop._id}`)}
-                  >
-                    <View style={styles.shopHeader}>
-                      <View style={styles.shopInfo}>
-                        <Text style={[styles.shopName, { color: theme.text }]}>{shop.name}</Text>
-                        <Text style={[styles.shopCity, { color: theme.textSecondary }]}>
-                          {shop.location.city} • {calculateDistance(userLocation.latitude, userLocation.longitude, shop.location.latitude, shop.location.longitude)} km
-                        </Text>
-                      </View>
-                      <View style={styles.shopRating}>
-                        <Ionicons name="star" size={16} color="#FFB800" />
-                        <Text style={[styles.ratingText, { color: theme.text }]}>{shop.rating.toFixed(1)}</Text>
-                      </View>
-                    </View>
-                    <Text style={[styles.shopDescription, { color: theme.textSecondary }]} numberOfLines={2}>
-                      {shop.description}
-                    </Text>
-                    <View style={[styles.openBadge, { backgroundColor: shop.is_open ? '#4CAF50' : '#F44336' }]}>
-                      <Text style={styles.openText}>{shop.is_open ? 'Open' : 'Closed'}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            )}
-          </>
-        )}
-      </SafeAreaView>
-    );
-  }
-
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={[styles.loadingText, { color: theme.text }]}>Loading map...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Barbershops Near You</Text>
-        <TouchableOpacity onPress={fetchShops}>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>Explore by City</Text>
+        <TouchableOpacity onPress={() => fetchShops()}>
           <Ionicons name="refresh" size={24} color={theme.primary} />
         </TouchableOpacity>
       </View>
 
-      {MapView && (
-        <MapView
-          style={styles.map}
-          provider={PROVIDER_GOOGLE}
-          initialRegion={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421
-          }}
-          showsUserLocation
-          showsMyLocationButton
-          showsCompass
-        >
-          {shops.map((shop) => (
-            <Marker
-              key={shop._id}
-              coordinate={{
-                latitude: shop.location.latitude,
-                longitude: shop.location.longitude
-              }}
-            >
-              <View style={[styles.customPin, { backgroundColor: theme.primary }]}>
-                <Ionicons name="cut" size={20} color="#FFF" />
-              </View>
-              
-              <Callout onPress={() => router.push(`/shop/${shop._id}`)}>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{shop.name}</Text>
-                  <View style={styles.calloutRating}>
-                    <Ionicons name="star" size={14} color="#FFB800" />
-                    <Text style={styles.calloutRatingText}>{shop.rating.toFixed(1)}</Text>
+      <View style={[styles.searchContainer, { backgroundColor: theme.surface }]}>
+        <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
+          <Ionicons name="search" size={20} color={theme.textSecondary} />
+          <TextInput
+            style={[styles.searchInput, { color: theme.text }]}
+            placeholder="Search by city..."
+            placeholderTextColor={theme.textTertiary}
+            value={searchCity}
+            onChangeText={setSearchCity}
+            onSubmitEditing={handleSearch}
+          />
+        </View>
+      </View>
+
+      <View style={[styles.infoCard, { backgroundColor: theme.accentLight }]}>
+        <Ionicons name="map" size={20} color={theme.primary} />
+        <Text style={[styles.infoText, { color: theme.textSecondary }]}>
+          🗺️ Interactive Google Maps coming soon in standalone app!
+        </Text>
+      </View>
+
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
+      ) : (
+        <ScrollView style={styles.scrollView}>
+          {shops.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="search-outline" size={64} color={theme.textTertiary} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                No barbershops found
+              </Text>
+            </View>
+          ) : (
+            shops.map((shop) => (
+              <TouchableOpacity
+                key={shop._id}
+                style={[styles.shopCard, { backgroundColor: theme.card }]}
+                onPress={() => router.push(`/shop/${shop._id}`)}
+              >
+                <View style={styles.shopHeader}>
+                  <View style={styles.shopInfo}>
+                    <Text style={[styles.shopName, { color: theme.text }]}>{shop.name}</Text>
+                    <View style={styles.locationRow}>
+                      <Ionicons name="location" size={14} color={theme.textSecondary} />
+                      <Text style={[styles.shopCity, { color: theme.textSecondary }]}>
+                        {shop.location.city}
+                      </Text>
+                    </View>
                   </View>
-                  <Text style={styles.calloutAddress}>{shop.location.city}</Text>
-                  <View style={[styles.calloutButton, { backgroundColor: theme.primary }]}>
-                    <Text style={styles.calloutButtonText}>View Shop</Text>
+                  <View style={styles.shopMeta}>
+                    <View style={styles.ratingBadge}>
+                      <Ionicons name="star" size={14} color="#FFB800" />
+                      <Text style={[styles.ratingText, { color: theme.text }]}>{shop.rating.toFixed(1)}</Text>
+                    </View>
+                    <View style={[styles.statusBadge, { backgroundColor: shop.is_open ? '#4CAF50' : '#F44336' }]}>
+                      <Text style={styles.statusText}>{shop.is_open ? 'Open' : 'Closed'}</Text>
+                    </View>
                   </View>
                 </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
-      )}
-
-      {shops.length > 0 && (
-        <View style={[styles.shopCounter, { backgroundColor: theme.card }]}>
-          <Ionicons name="storefront" size={16} color={theme.primary} />
-          <Text style={[styles.counterText, { color: theme.text }]}>
-            {shops.length} barbershops found
-          </Text>
-        </View>
+                <Text style={[styles.shopDescription, { color: theme.textSecondary }]} numberOfLines={2}>
+                  {shop.description}
+                </Text>
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
       )}
     </SafeAreaView>
   );
@@ -232,101 +123,26 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold' },
-  map: { flex: 1 },
-  customPin: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    borderWidth: 3,
-    borderColor: '#FFF'
-  },
-  callout: {
-    width: 200,
-    padding: 12
-  },
-  calloutTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 6
-  },
-  calloutRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 4
-  },
-  calloutRatingText: {
-    fontSize: 14,
-    fontWeight: '600'
-  },
-  calloutAddress: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 8
-  },
-  calloutButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  calloutButtonText: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '600'
-  },
-  shopCounter: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    padding: 12,
-    borderRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5
-  },
-  counterText: {
-    fontSize: 14,
-    fontWeight: '600'
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16
-  },
-  loadingText: {
-    fontSize: 16
-  },
-  webPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32
-  },
-  webTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8
-  },
-  webSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 22
-  }
+  headerTitle: { fontSize: 22, fontWeight: 'bold' },
+  searchContainer: { paddingHorizontal: 16, paddingBottom: 12 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, paddingHorizontal: 16, gap: 12 },
+  searchInput: { flex: 1, fontSize: 16 },
+  infoCard: { marginHorizontal: 16, marginBottom: 12, padding: 12, borderRadius: 12, flexDirection: 'row', gap: 12, alignItems: 'center' },
+  infoText: { flex: 1, fontSize: 12 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scrollView: { flex: 1, paddingHorizontal: 16 },
+  shopCard: { padding: 16, borderRadius: 12, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
+  shopHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  shopInfo: { flex: 1 },
+  shopName: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  shopCity: { fontSize: 14 },
+  shopMeta: { gap: 8, alignItems: 'flex-end' },
+  ratingBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  ratingText: { fontSize: 14, fontWeight: '600' },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+  statusText: { color: '#FFF', fontSize: 11, fontWeight: '600' },
+  shopDescription: { fontSize: 14, lineHeight: 20 },
+  emptyState: { alignItems: 'center', paddingVertical: 60 },
+  emptyText: { fontSize: 16, marginTop: 16 }
 });
