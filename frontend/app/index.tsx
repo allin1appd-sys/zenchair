@@ -13,19 +13,15 @@ export default function Index() {
   useEffect(() => {
     if (loading) return;
 
-    // Check if we're in an auth route
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated
-      router.replace('/(auth)/login');
-    } else if (user) {
-      // Redirect based on user role
-      if (user.role === 'barber') {
-        router.replace('/(barber)/dashboard');
-      } else {
-        router.replace('/(customer)/(tabs)/home');
-      }
+    // If user is logged in and is a barber, go to dashboard
+    if (user && user.role === 'barber') {
+      router.replace('/(barber)/dashboard');
+    } 
+    // If no user (customer or not logged in), go to customer home
+    else if (!inAuthGroup) {
+      router.replace('/(customer)/(tabs)/home');
     }
   }, [user, loading, segments]);
 
