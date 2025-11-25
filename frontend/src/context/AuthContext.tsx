@@ -21,8 +21,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   socket: Socket | null;
-  login: (username: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  loginBarber: (sessionToken: string, userData: User) => Promise<void>;
   loginWithGoogle: (sessionId: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
