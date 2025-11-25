@@ -97,62 +97,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await axios.get('/auth/me');
       setUser(response.data);
     } catch (error) {
-      // No valid session
+      // No valid session - that's OK for customers
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
+  const loginBarber = async (token: string, userData: User) => {
+    setSessionToken(token);
+    setUser(userData);
+  };
+
   const loginWithGoogle = async (sessionId: string) => {
     try {
       setLoading(true);
-      const response = await axios.post('/auth/oauth/session', {
+      const response = await axios.post('/auth/barber/oauth/session', {
         session_id: sessionId
       });
       
       if (response.data.success) {
+        setSessionToken(response.data.session_token);
         setUser(response.data.user);
-        await refreshUser();
       }
     } catch (error: any) {
       console.error('Google login error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (username: string) => {
-    try {
-      setLoading(true);
-      const response = await axios.post('/auth/username/login', { username });
-      
-      if (response.data.success) {
-        const token = response.data.session_token;
-        setSessionToken(token);
-        setUser(response.data.user);
-      }
-    } catch (error: any) {
-      console.error('Login error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (data: RegisterData) => {
-    try {
-      setLoading(true);
-      const response = await axios.post('/auth/register', data);
-      
-      if (response.data.success) {
-        const token = response.data.session_token;
-        setSessionToken(token);
-        setUser(response.data.user);
-      }
-    } catch (error: any) {
-      console.error('Register error:', error);
       throw error;
     } finally {
       setLoading(false);
