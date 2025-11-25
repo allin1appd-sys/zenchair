@@ -77,12 +77,42 @@ export default function ProfileScreen() {
         </View>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>PREFERENCES</Text>
+          
+          {/* Dark Mode */}
           <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
             <View style={styles.settingLeft}>
               <Ionicons name="moon" size={20} color={theme.text} />
               <Text style={[styles.settingText, { color: theme.text }]}>Dark Mode</Text>
             </View>
             <Switch value={isDark} onValueChange={toggleTheme} trackColor={{ false: '#D0D0D0', true: theme.primary }} />
+          </View>
+
+          {/* Language Selector */}
+          <View style={[styles.settingRow, { backgroundColor: theme.card }]}>
+            <View style={styles.settingLeft}>
+              <Ionicons name="language" size={20} color={theme.text} />
+              <Text style={[styles.settingText, { color: theme.text }]}>Language</Text>
+            </View>
+            <View style={styles.languageButtons}>
+              {['en', 'ar', 'he'].map((lang) => (
+                <TouchableOpacity
+                  key={lang}
+                  style={[
+                    styles.langButton,
+                    { borderColor: theme.border },
+                    language === lang && { backgroundColor: theme.primary, borderColor: theme.primary }
+                  ]}
+                  onPress={() => setLanguage(lang as any)}
+                >
+                  <Text style={[
+                    styles.langText,
+                    { color: language === lang ? '#FFF' : theme.text }
+                  ]}>
+                    {lang.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
         <View style={[styles.infoBox, { backgroundColor: theme.accentLight }]}>
