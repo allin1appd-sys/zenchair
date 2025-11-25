@@ -44,7 +44,7 @@ export default function MapScreen() {
   }, []);
 
   const requestLocationAndFetchShops = async () => {
-    if (Platform.OS !== 'web' && Location) {
+    if (Platform.OS !== 'web' && Location && mapsAvailable) {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
@@ -55,7 +55,7 @@ export default function MapScreen() {
           });
         }
       } catch (error) {
-        console.error('Location error:', error);
+        console.log('Location permission not granted');
       }
     }
     await fetchShops();
@@ -72,16 +72,83 @@ export default function MapScreen() {
     }
   };
 
-  if (Platform.OS === 'web') {
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c).toFixed(1);
+  };
+
+  // If maps not available (Expo Go), show list view
+  if (!mapsAvailable || Platform.OS === 'web') {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={styles.webPlaceholder}>
-          <Ionicons name="map-outline" size={64} color={theme.textTertiary} />
-          <Text style={[styles.webTitle, { color: theme.text }]}>Map View</Text>
-          <Text style={[styles.webSubtitle, { color: theme.textSecondary }]}>
-            Download the mobile app to see barbershops on the interactive map
+        <View style={[styles.header, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.headerTitle, { color: theme.text }]}>
+            {Platform.OS === 'web' ? 'Map View' : 'Nearby Shops'}
           </Text>
+          <TouchableOpacity onPress={fetchShops}>
+            <Ionicons name="refresh" size={24} color={theme.primary} />
+          </TouchableOpacity>
         </View>
+
+        {Platform.OS === 'web' ? (
+          <View style={styles.webPlaceholder}>
+            <Ionicons name="map-outline" size={64} color={theme.textTertiary} />
+            <Text style={[styles.webTitle, { color: theme.text }]}>Interactive Map</Text>
+            <Text style={[styles.webSubtitle, { color: theme.textSecondary }]}>
+              Download the mobile app to see barbershops on Google Maps
+            </Text>
+          </View>
+        ) : (
+          <>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={theme.primary} />
+              </View>
+            ) : (
+              <ScrollView style={styles.listContainer}>
+                <View style={[styles.infoCard, { backgroundColor: theme.accentLight }]}>
+                  <Ionicons name="information-circle" size={20} color={theme.primary} />
+                  <Text style={[styles.infoText, { color: theme.textSecondary }]}>
+                    🗺️ Full Google Maps available in custom app build. Showing list view for now!
+                  </Text>
+                </View>
+                {shops.map((shop) => (
+                  <TouchableOpacity
+                    key={shop._id}
+                    style={[styles.shopCard, { backgroundColor: theme.card }]}
+                    onPress={() => router.push(`/shop/${shop._id}`)}
+                  >
+                    <View style={styles.shopHeader}>
+                      <View style={styles.shopInfo}>
+                        <Text style={[styles.shopName, { color: theme.text }]}>{shop.name}</Text>
+                        <Text style={[styles.shopCity, { color: theme.textSecondary }]}>
+                          {shop.location.city} • {calculateDistance(userLocation.latitude, userLocation.longitude, shop.location.latitude, shop.location.longitude)} km
+                        </Text>
+                      </View>
+                      <View style={styles.shopRating}>
+                        <Ionicons name="star" size={16} color="#FFB800" />
+                        <Text style={[styles.ratingText, { color: theme.text }]}>{shop.rating.toFixed(1)}</Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.shopDescription, { color: theme.textSecondary }]} numberOfLines={2}>
+                      {shop.description}
+                    </Text>
+                    <View style={[styles.openBadge, { backgroundColor: shop.is_open ? '#4CAF50' : '#F44336' }]}>
+                      <Text style={styles.openText}>{shop.is_open ? 'Open' : 'Closed'}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+          </>
+        )}
       </SafeAreaView>
     );
   }
