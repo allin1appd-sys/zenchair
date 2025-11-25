@@ -22,7 +22,11 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace('/(auth)/login');
+    // For customers, just clear user data, stay on home
+    // For barbers, redirect to login
+    if (user?.role === 'barber') {
+      router.replace('/(auth)/barber-login');
+    }
   };
 
   return (
