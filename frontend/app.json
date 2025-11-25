@@ -15,6 +15,9 @@
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby barbershops",
         "NSCameraUsageDescription": "We need camera access to take photos for your gallery",
         "NSPhotoLibraryUsageDescription": "We need photo library access to upload images"
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyAKnNIR0QZ-S8tO-dOG4OLdmHqw2j7Oxm8"
       }
     },
     "android": {
