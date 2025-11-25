@@ -595,5 +595,22 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     marginTop: 16
+  },
+  webMapPlaceholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32
+  },
+  webMapText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 16,
+    textAlign: 'center'
+  },
+  webMapSubtext: {
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center'
   }
 });
