@@ -24,11 +24,20 @@ class UpdateBookingStatusRequest(BaseModel):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_booking(
     request_data: CreateBookingRequest,
-    current_user: Request
+    current_user: Request = None
 ):
-    """Create a new booking"""
-    user = await get_current_user(current_user)
+    """Create a new booking (customers don't need auth)"""
     db = get_database()
+    
+    # Try to get authenticated user, but allow anonymous customers
+    customer_id = "guest"
+    try:
+        if current_user:
+            user = await get_current_user(current_user)
+            customer_id = user.id
+    except:
+        # Customer is not authenticated, that's OK
+        pass
     
     # Get shop
     shop = await db.barber_shops.find_one({"_id": request_data.shop_id})
