@@ -129,7 +129,8 @@ async def create_booking(
     # Notify barber via WebSocket
     await notify_new_booking(request_data.shop_id, {
         "booking_id": booking_id,
-        "customer_name": user.name,
+        "customer_name": request_data.customer_name,
+        "customer_phone": request_data.customer_phone,
         "date": request_data.date,
         "time": request_data.time,
         "services": [s["name"] for s in services],
