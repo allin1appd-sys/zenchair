@@ -42,6 +42,12 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.surface }]}>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Find Barbers</Text>
+        <TouchableOpacity onPress={() => router.push('/(auth)/barber-login')}>
+          <View style={[styles.barberButton, { backgroundColor: theme.primary }]}>
+            <Ionicons name="cut" size={16} color="#FFF" />
+            <Text style={styles.barberButtonText}>Barber</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <View style={[styles.searchContainer, { backgroundColor: theme.surface }]}>
         <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
