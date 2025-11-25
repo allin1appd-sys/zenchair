@@ -6,17 +6,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
-// Conditional import for maps
-let MapView: any, Marker: any, Callout: any, PROVIDER_GOOGLE: any;
-let Location: any;
+// Try to import maps, but handle if not available (Expo Go limitation)
+let MapView: any = null;
+let Marker: any = null;
+let Callout: any = null;
+let PROVIDER_GOOGLE: any = null;
+let Location: any = null;
+let mapsAvailable = false;
 
-if (Platform.OS !== 'web') {
-  const Maps = require('react-native-maps');
-  MapView = Maps.default;
-  Marker = Maps.Marker;
-  Callout = Maps.Callout;
-  PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
-  Location = require('expo-location');
+try {
+  if (Platform.OS !== 'web') {
+    const Maps = require('react-native-maps');
+    MapView = Maps.default;
+    Marker = Maps.Marker;
+    Callout = Maps.Callout;
+    PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+    Location = require('expo-location');
+    mapsAvailable = true;
+  }
+} catch (error) {
+  console.log('Maps not available in Expo Go - showing list view');
+  mapsAvailable = false;
 }
 
 export default function MapScreen() {
