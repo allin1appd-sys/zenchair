@@ -7,15 +7,25 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../../src/theme';
 import { Ionicons } from '@expo/vector-icons';
-import MapView, { Marker, Callout } from 'react-native-maps';
-import * as Location from 'expo-location';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+
+// Only import MapView on native platforms
+let MapView: any, Marker: any, Callout: any;
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+  Callout = Maps.Callout;
+}
+
+const Location = Platform.OS !== 'web' ? require('expo-location') : null;
 
 const { width } = Dimensions.get('window');
 
