@@ -1,58 +1,63 @@
-diff --git a/frontend/app/(customer)/(tabs)/home.tsx b/frontend/app/(customer)/(tabs)/home.tsx
-index 1a5e8ad..19a2ab8 100644
---- a/frontend/app/(customer)/(tabs)/home.tsx
-+++ b/frontend/app/(customer)/(tabs)/home.tsx
-@@ -42,6 +42,12 @@ export default function HomeScreen() {
-     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-       <View style={[styles.header, { backgroundColor: theme.surface }]}>
-         <Text style={[styles.headerTitle, { color: theme.text }]}>Find Barbers</Text>
-+        <TouchableOpacity onPress={() => router.push('/(auth)/barber-login')}>
-+          <View style={[styles.barberButton, { backgroundColor: theme.primary }]}>
-+            <Ionicons name="cut" size={16} color="#FFF" />
-+            <Text style={styles.barberButtonText}>Barber</Text>
-+          </View>
-+        </TouchableOpacity>
-       </View>
-       <View style={[styles.searchContainer, { backgroundColor: theme.surface }]}>
-         <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
-@@ -92,6 +98,8 @@ const styles = StyleSheet.create({
-   container: { flex: 1 },
-   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
-   headerTitle: { fontSize: 24, fontWeight: 'bold' },
-+  barberButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-+  barberButtonText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
-   searchContainer: { paddingHorizontal: 16, paddingBottom: 12 },
-   searchBar: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, paddingHorizontal: 16, gap: 12 },
-   searchInput: { flex: 1, fontSize: 16 },
 diff --git a/model.patch b/model.patch
-index bad09e2..e69de29 100644
+index 461026f..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,27 +0,0 @@
+@@ -1,58 +0,0 @@
 -diff --git a/frontend/app/(customer)/(tabs)/home.tsx b/frontend/app/(customer)/(tabs)/home.tsx
--index 14493d4..b66ba1f 100644
+-index 1a5e8ad..19a2ab8 100644
 ---- a/frontend/app/(customer)/(tabs)/home.tsx
 -+++ b/frontend/app/(customer)/(tabs)/home.tsx
--@@ -595,5 +595,22 @@ const styles = StyleSheet.create({
--   emptyText: {
--     fontSize: 16,
--     marginTop: 16
--+  },
--+  webMapPlaceholder: {
--+    flex: 1,
--+    justifyContent: 'center',
--+    alignItems: 'center',
--+    padding: 32
--+  },
--+  webMapText: {
--+    fontSize: 18,
--+    fontWeight: '600',
--+    marginTop: 16,
--+    textAlign: 'center'
--+  },
--+  webMapSubtext: {
--+    fontSize: 14,
--+    marginTop: 8,
--+    textAlign: 'center'
--   }
-- });
+-@@ -42,6 +42,12 @@ export default function HomeScreen() {
+-     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+-       <View style={[styles.header, { backgroundColor: theme.surface }]}>
+-         <Text style={[styles.headerTitle, { color: theme.text }]}>Find Barbers</Text>
+-+        <TouchableOpacity onPress={() => router.push('/(auth)/barber-login')}>
+-+          <View style={[styles.barberButton, { backgroundColor: theme.primary }]}>
+-+            <Ionicons name="cut" size={16} color="#FFF" />
+-+            <Text style={styles.barberButtonText}>Barber</Text>
+-+          </View>
+-+        </TouchableOpacity>
+-       </View>
+-       <View style={[styles.searchContainer, { backgroundColor: theme.surface }]}>
+-         <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
+-@@ -92,6 +98,8 @@ const styles = StyleSheet.create({
+-   container: { flex: 1 },
+-   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
+-   headerTitle: { fontSize: 24, fontWeight: 'bold' },
+-+  barberButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+-+  barberButtonText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+-   searchContainer: { paddingHorizontal: 16, paddingBottom: 12 },
+-   searchBar: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, paddingHorizontal: 16, gap: 12 },
+-   searchInput: { flex: 1, fontSize: 16 },
+-diff --git a/model.patch b/model.patch
+-index bad09e2..e69de29 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,27 +0,0 @@
+--diff --git a/frontend/app/(customer)/(tabs)/home.tsx b/frontend/app/(customer)/(tabs)/home.tsx
+--index 14493d4..b66ba1f 100644
+----- a/frontend/app/(customer)/(tabs)/home.tsx
+--+++ b/frontend/app/(customer)/(tabs)/home.tsx
+--@@ -595,5 +595,22 @@ const styles = StyleSheet.create({
+--   emptyText: {
+--     fontSize: 16,
+--     marginTop: 16
+--+  },
+--+  webMapPlaceholder: {
+--+    flex: 1,
+--+    justifyContent: 'center',
+--+    alignItems: 'center',
+--+    padding: 32
+--+  },
+--+  webMapText: {
+--+    fontSize: 18,
+--+    fontWeight: '600',
+--+    marginTop: 16,
+--+    textAlign: 'center'
+--+  },
+--+  webMapSubtext: {
+--+    fontSize: 14,
+--+    marginTop: 8,
+--+    textAlign: 'center'
+--   }
+-- });
