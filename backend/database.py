@@ -19,21 +19,25 @@ async def connect_to_mongo():
     db_instance.client = AsyncIOMotorClient(mongo_url)
     db_instance.db = db_instance.client[db_name]
     
-    # Create indexes (email is NOT unique because it's optional)
-    await db_instance.db.users.create_index("username", unique=True)
+    # Create indexes only if they don't exist
+    try:
+        existing_indexes = await db_instance.db.users.list_indexes().to_list(100)
+        index_names = [idx['name'] for idx in existing_indexes]
+        
+        if 'username_1' not in index_names:
+            await db_instance.db.users.create_index("username", unique=True)
+    except Exception as e:
+        print(f"Index creation note: {e}")
+    
+    # Create other indexes
     await db_instance.db.user_sessions.create_index("session_token")
     await db_instance.db.user_sessions.create_index("user_id")
     await db_instance.db.barber_shops.create_index("barber_id")
     await db_instance.db.barber_shops.create_index([("location.city", 1)])
-    await db_instance.db.barber_shops.create_index([
-        ("location.latitude", 1),
-        ("location.longitude", 1)
-    ])
     await db_instance.db.services.create_index("shop_id")
     await db_instance.db.products.create_index("shop_id")
     await db_instance.db.bookings.create_index("shop_id")
     await db_instance.db.bookings.create_index("customer_id")
-    await db_instance.db.bookings.create_index([("date", 1), ("time", 1)])
     await db_instance.db.reviews.create_index("shop_id")
     await db_instance.db.subscriptions.create_index("barber_id")
     
