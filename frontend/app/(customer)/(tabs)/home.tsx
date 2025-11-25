@@ -98,6 +98,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16 },
   headerTitle: { fontSize: 24, fontWeight: 'bold' },
+  barberButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  barberButtonText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
   searchContainer: { paddingHorizontal: 16, paddingBottom: 12 },
   searchBar: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, paddingHorizontal: 16, gap: 12 },
   searchInput: { flex: 1, fontSize: 16 },
