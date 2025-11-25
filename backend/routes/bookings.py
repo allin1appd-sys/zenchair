@@ -109,7 +109,9 @@ async def create_booking(
     booking_data = {
         "_id": booking_id,
         "shop_id": request_data.shop_id,
-        "customer_id": user.id,
+        "customer_id": customer_id,
+        "customer_name": request_data.customer_name,
+        "customer_phone": request_data.customer_phone,
         "barber_id": shop["barber_id"],
         "service_ids": request_data.service_ids,
         "product_ids": request_data.product_ids,
