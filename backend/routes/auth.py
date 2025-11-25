@@ -142,6 +142,7 @@ async def login_with_username(request: UsernameLoginRequest, response: Response)
     
     return {
         "success": True,
+        "session_token": session_token,
         "user": {
             "id": user["_id"],
             "email": user.get("email"),
