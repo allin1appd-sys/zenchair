@@ -130,8 +130,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await axios.post('/auth/username/login', { username });
       
       if (response.data.success) {
+        const token = response.data.session_token;
+        setSessionToken(token);
         setUser(response.data.user);
-        await refreshUser();
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -147,8 +148,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await axios.post('/auth/register', data);
       
       if (response.data.success) {
+        const token = response.data.session_token;
+        setSessionToken(token);
         setUser(response.data.user);
-        await refreshUser();
       }
     } catch (error: any) {
       console.error('Register error:', error);
