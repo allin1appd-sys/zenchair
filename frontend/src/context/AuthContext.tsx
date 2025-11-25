@@ -3,7 +3,9 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { io, Socket } from 'socket.io-client';
 
-const API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || '';
+
+console.log('API_URL configured:', API_URL);
 
 interface User {
   id: string;
