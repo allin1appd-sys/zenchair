@@ -19,9 +19,8 @@ async def connect_to_mongo():
     db_instance.client = AsyncIOMotorClient(mongo_url)
     db_instance.db = db_instance.client[db_name]
     
-    # Create indexes
-    await db_instance.db.users.create_index("email", unique=True)
-    await db_instance.db.users.create_index("username")
+    # Create indexes (email is NOT unique because it's optional)
+    await db_instance.db.users.create_index("username", unique=True)
     await db_instance.db.user_sessions.create_index("session_token")
     await db_instance.db.user_sessions.create_index("user_id")
     await db_instance.db.barber_shops.create_index("barber_id")
