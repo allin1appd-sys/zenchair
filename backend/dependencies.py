@@ -39,7 +39,12 @@ async def get_current_user(request: Request) -> User:
         )
     
     # Check expiration
-    if session["expires_at"] < datetime.now(timezone.utc):
+    expires_at = session["expires_at"]
+    if not expires_at.tzinfo:
+        # If naive datetime, make it UTC aware
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
         await db.user_sessions.delete_one({"session_token": session_token})
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
