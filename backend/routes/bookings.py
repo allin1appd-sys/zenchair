@@ -16,6 +16,8 @@ class CreateBookingRequest(BaseModel):
     product_ids: List[str] = []
     date: str  # "2025-01-15"
     time: str  # "10:00"
+    customer_name: str  # Customer provides at booking
+    customer_phone: str  # Customer provides at booking
     notes: Optional[str] = None
 
 class UpdateBookingStatusRequest(BaseModel):
