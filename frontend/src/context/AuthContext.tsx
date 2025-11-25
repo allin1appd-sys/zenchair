@@ -149,8 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         loading,
         socket,
-        login,
-        register,
+        loginBarber,
         loginWithGoogle,
         logout,
         refreshUser
