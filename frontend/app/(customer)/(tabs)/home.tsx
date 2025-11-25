@@ -67,6 +67,7 @@ export default function HomeScreen() {
   }, []);
 
   const requestLocationPermission = async () => {
+    if (Platform.OS === 'web' || !Location) return;
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
