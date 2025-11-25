@@ -125,6 +125,13 @@ async def login_barber(request: BarberLoginRequest, response: Response):
             detail="User not found"
         )
     
+    # Check if user has password (OAuth users don't)
+    if not user.get("password_hash"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This account uses Google login. Please use 'Continue with Google'"
+        )
+    
     # Verify password
     if not verify_password(request.password, user["password_hash"]):
         raise HTTPException(
